@@ -20,7 +20,7 @@
     outline: none;
     border-bottom: 1px solid #0dcaf0;
     background: transparent;
-    color: mediumblue;
+    color: #0000CDFF;
     padding-left: 4px;
     width: 100%;
     font-style: oblique;
@@ -109,12 +109,12 @@ textarea {
     border-radius: 2px;
     outline: 0;
     background: #fafafa;
-    color: mediumblue;
+    color: #0000CDFF;
     font-style: oblique;
     font-size: 18px;
     box-sizing: border-box;
     z-index: 1;
-    caret: mediumblue;
+    caret: #0000CDFF;
     caret-shape: bar;
     resize: none;
 }

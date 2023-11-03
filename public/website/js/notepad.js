@@ -1,6 +1,7 @@
 var noteForm = $('#note-form'), noteInput = $('textarea#note'), createUrl;
+window.jsPDF = window.jspdf.jsPDF;
 $(document).ready(function () {
-
+    loadItems();
 })
     .on('click', '#new-note', function () {
         $('textarea#note').val('');
@@ -85,8 +86,32 @@ $(document).ready(function () {
         }).fail(function (error) {
             failResponse(error)
         })
+    })
+    .on('keyup', '.notes-search input#keyword', function () {
+        loadItems(true);
     });
 
+
+function loadItems(newItem = false) {
+    $.ajax({
+        url: $('.note-items').data('url'),
+        method: 'get',
+        data: {
+            keyword: $('input#keyword').val()
+        },
+        dataType: 'json',
+    }).done(function (response) {
+        if (response.success === true) {
+            if (newItem) {
+                $('.note-items').html(response.view);
+                noteInput.val('');
+            } else  {
+                $('.note-items').prepend(response.view);
+            }
+
+        }
+    })
+}
 
 function storeNote(extension = null) {
     var data = noteForm.serializeWithFiles(),
@@ -110,9 +135,7 @@ function storeNote(extension = null) {
     }).done(function (response) {
         if (response.success === true) {
             if (noteForm.attr('data-type') === 'create') {
-                noteInput.val('');
-                $('.note-items').prepend(response.data.note);
-                $('input#note-title').val(response.data.title);
+                loadItems(true);
             }
 
             if (extension) {
@@ -124,6 +147,7 @@ function storeNote(extension = null) {
         failResponse(error)
     })
 }
+
 function deleteNote(url, row) {
     $.ajax({
         url: url,
@@ -144,26 +168,15 @@ function deleteNote(url, row) {
     })
 }
 
-function downloadNote(url) {
-    $.ajax({
-        url: url,
-        method: 'post',
-        dataType: 'json',
-    }).done(function (response) {
-        if (response.success === true) {
-
-        }
-    }).fail(function (error) {
-
-    })
-}
-
 function download(filename, extension, text) {
     var element = document.createElement('a');
 
     if (extension === 'pdf') {
-        var doc = new jsPDF();
-        doc.text(20, 20, text);
+        var doc = new jsPDF({
+            orientation: "p"
+        });
+        var splitTitle = doc.splitTextToSize(text, 180);
+        doc.text(15, 20, splitTitle);
         doc.save(filename + '.' + extension);
     } else if (extension === 'docx' || extension === 'doc') {
         var fName = filename + '.' + extension;

@@ -11,12 +11,14 @@ $(document)
             method = elm.attr('data-method'),
             item = elm.attr('data-item'),
             content = elm.attr('data-content'),
+            folder = elm.attr('data-folder'),
             limit = elm.attr('data-limit'),
             offset = $('.' + item).length,
             data = {
                 model: model,
                 id: id,
                 method: method,
+                folder: folder,
                 view: item + 's',
                 offset: offset,
                 limit: limit

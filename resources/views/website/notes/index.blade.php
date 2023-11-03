@@ -16,12 +16,10 @@
             <div class="page-row">
                 <div class="notes-list">
                     <div class="notes-search">
-                        <input type="text" placeholder="Search" id="search" >
+                        <input type="text" placeholder="Search" id="keyword" >
                     </div>
-                    <div class="note-items">
-                        @include('website.notes.partials.items', [
-                            'data' => $notes
-                          ])
+                    <div class="note-items" data-url="{{route('notepad.items')}}">
+
                     </div>
                 </div>
                 <div class="form-content">

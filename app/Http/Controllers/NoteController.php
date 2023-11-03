@@ -11,7 +11,9 @@ use App\Http\Resources\NoteResource;
 use App\Models\Note;
 use App\Repositories\Website\Interfaces\NoteInterface;
 use App\Services\FileService;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\View\View;
@@ -44,11 +46,36 @@ class NoteController extends Controller
     public function index(): View
     {
         $notes = $this->noteRepository->list();
-        $showBtn = count($notes) == 12;
+        $showBtn = count($notes) == 10;
         return view('website.notes.index', [
             'notes' => $notes,
             'showBtn' => $showBtn
         ]);
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function loadItems(Request $request): JsonResponse
+    {
+        try {
+            $notes = $this->noteRepository->search($request);
+            $showBtn = count($notes) === 10;
+            $view = view('website.notes.partials.items', [
+                'data' => $notes,
+                'showBtn' => $showBtn
+            ])->render();
+            return response()->json([
+                'success' => true,
+                'view' => $view
+            ], 200);
+        } catch (\Exception $exception) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Something went wrong'
+            ], 400);
+        }
     }
 
     /**

@@ -3,9 +3,11 @@
 namespace App\Repositories\Website;
 
 use App\Models\Note;
+use App\Models\User;
 use App\Repositories\Website\Interfaces\NoteInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 
@@ -27,9 +29,10 @@ class NoteRepository implements NoteInterface
     public function create(Request $request): Model
     {
         return $this->getModel()->query()->create([
+            'user_id' => Auth::id(),
             'title' => $request->input('title'),
-            'text'  => $request->input('text'),
-            'key'   => Str::random(30)
+            'text' => $request->input('text'),
+            'key' => Str::random(30)
         ]);
     }
 
@@ -45,7 +48,7 @@ class NoteRepository implements NoteInterface
 
         $model->update([
             'title' => $request->input('title'),
-            'text'  => $request->input('text')
+            'text' => $request->input('text')
         ]);
 
         return $model;
@@ -65,6 +68,25 @@ class NoteRepository implements NoteInterface
     public function list()
     {
         return $this->model->list();
+    }
+
+
+    /**
+     * @param Request $request
+     * @return mixed
+     */
+    public function search(Request $request): mixed
+    {
+        $user = User::query()->find(Auth::id());
+        $notes = $user->notes()->orderByDesc('id');
+        $keyword = $request->input('keyword');
+
+        if (!empty($keyword)) {
+            $notes = $notes->where('title', 'like', '%' . $keyword . '%')
+                ->orWhere('text', 'like', '%' . $keyword . '%');
+        }
+
+        return $notes->offset(0)->limit(10)->get();
     }
 
     /**

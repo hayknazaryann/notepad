@@ -5,6 +5,7 @@
     @include('website.partials.load-more', [
       'url' => route('load_more'),
       'content' => 'note-items',
+      'folder' => 'notes',
       'item' => 'note-item',
       'model' => 'Note',
       'id' => null,

@@ -12,6 +12,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('notepad')->controller(NoteController::class)
         ->name('notepad')->group(function () {
         Route::get('', 'index');
+        Route::get('items', 'loadItems')->name('.items');
         Route::post('store', 'store')->name('.store');
         Route::post('import', 'import')->name('.import');
         Route::post('download/{key}/{extension}', 'download')->name('.download');
@@ -19,5 +20,4 @@ Route::middleware('auth')->group(function () {
         Route::put('update/{key}', 'update')->name('.update');
         Route::delete('delete/{key}', 'delete')->name('.delete');
     });
-
 });

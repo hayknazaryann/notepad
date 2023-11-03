@@ -36,7 +36,7 @@ class WebsiteController extends Controller
         $model = $id ? $model::where(['id' => $id])->first() : new $model();
         $data = $model->{$listMethod}($limit, $offset);
         $showBtn = count($data) == $limit;
-        $view = 'website.pages.partials.' . $request->input('view');
+        $view = 'website.'. $request->input('folder') .'.partials.items';
 
         if (!view()->exists($view)) {
             return response()->json([
