@@ -40,10 +40,10 @@
         </ul>
     </div>
 
-    <a href="javascript:void(0)" id="profile" title="Profile">
+    <a href="javascript:void(0)" id="theme" title="Theme">
                             <span class="material-icons">
-                            account_circle
+                            contrast
                             </span>
-        {{__('Profile')}}
+        {{__('Dark Mode')}}
     </a>
 </div>

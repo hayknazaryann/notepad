@@ -9,7 +9,13 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{{route('home')}}">{{__('Blog')}}</a>
+                    <input type="checkbox" name="switcher" id="switcher-input" class="switcher-input">
+                    <!--label with images and span to change color-->
+                    <label class="switcher-label" for="switcher-input">
+                        <i class='fas fa-solid fa-moon'></i>
+                        <span class="switcher-toggler"></span>
+                        <i class='fas fa-solid fa-sun'></i>
+                    </label>
                 </li>
 
                 @auth

@@ -44,6 +44,9 @@
     <!-- Styles -->
     <link rel="stylesheet" href="{{ asset('vendors/sweetalert/sweetalert2.min.css') }}">
     <link rel="stylesheet" href="{{ asset('website/css/main.css')}}?ver={{ filemtime(public_path('website/css/main.css')) }}">
+
+    <link rel="stylesheet" href="{{ asset("website/css/themes/". (Auth::user()->theme ?? 'light') .".css")}}?ver={{ filemtime(public_path('website/css/themes/'. (Auth::user()->theme ?? 'light') .'.css')) }}">
+    <link rel="stylesheet" href="{{ asset("website/css/themes/". (Auth::user()->theme ?? 'dark') .".css")}}?ver={{ filemtime(public_path('website/css/themes/'. (Auth::user()->theme ?? 'dark') .'.css')) }}">
     @yield('css')
 
 
@@ -64,6 +67,7 @@
 <script src="{{ asset('vendors/sweetalert/sweetalert2.min.js') }}"></script>
 <script src="{{asset('js/general.js')}}?ver={{ filemtime(public_path('js/general.js')) }}" async></script>
 <script src="{{asset('website/js/main.js')}}?ver={{ filemtime(public_path('website/js/main.js')) }}" async></script>
+<script src="{{asset('website/js/theme.js')}}?ver={{ filemtime(public_path('website/js/theme.js')) }}" async></script>
 @yield('js')
 @yield('modals')
 </body>

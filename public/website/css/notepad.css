@@ -18,9 +18,7 @@
     border: none;
     height: 40px;
     outline: none;
-    border-bottom: 1px solid #0dcaf0;
     background: transparent;
-    color: #0000CDFF;
     padding-left: 4px;
     width: 100%;
     font-style: oblique;
@@ -38,7 +36,6 @@
 }
 
 .notes-list {
-    border: 2px solid #91D1D3;
     border-radius: 2px;
     height: 480px;
     overflow-y: auto;
@@ -53,8 +50,6 @@
     width: 100%;
     border: none;
     padding-left: 4px;
-    background: #fafafa;
-    border-bottom: 2px solid #0dcaf0;
     height: 38px;
 }
 .notes-search input:focus, .notes-search input:active {
@@ -65,13 +60,11 @@
     flex-direction: column;
     font-size: 18px;
     font-style: oblique;
-    background: #fafafa;
     border-radius: 4px;
     position: relative;
 }
 
 .note-items .note-item {
-    border-bottom: 2px solid #91D1D3;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -100,35 +93,37 @@
     height: 25px;
 }
 
+.load-more-content {
+    text-align: center;
+}
+
+.load-more-content a {
+    text-transform: uppercase;
+    font-style: normal;
+}
+
 textarea {
     width:100%;
     height:480px;
     line-height: 4ch;
     padding: 0 8px;
-    border: 2px solid #91D1D3;
     border-radius: 2px;
     outline: 0;
-    background: #fafafa;
-    color: #0000CDFF;
     font-style: oblique;
     font-size: 18px;
     box-sizing: border-box;
     z-index: 1;
-    caret: #0000CDFF;
     caret-shape: bar;
     resize: none;
 }
 
 textarea:focus, textarea:hover {
     outline: none;
-    border: 2px solid #91D1D3;
 }
 
 .actions-panel {
-    background: #fafafa;
     border-radius: 4px;
     height: 480px;
-    border: 2px solid #91D1D3;
 }
 
 .actions-list {
@@ -162,4 +157,27 @@ textarea:focus, textarea:hover {
     justify-content: center;
     align-items: center;
     height: 100vh;
+}
+
+@media only screen and (max-width: 768px) {
+    .title-row .input-row, .title-row input {
+        width: 100%;
+    }
+    .page-row {
+        grid-template-columns: 1fr;
+    }
+    form {
+        width: 100% !important;
+    }
+
+    .actions-list {
+        padding: 10px 0;
+        flex-direction: row;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .actions-list > a:first-child {
+        margin-top: 0;
+    }
 }

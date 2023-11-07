@@ -1,0 +1,80 @@
+@media (prefers-color-scheme: dark) {
+    :root {
+        color-scheme: dark;
+    }
+}
+
+body[data-theme='dark'] {
+    background-color: #212529;
+    color: #808080;
+}
+
+[data-theme='dark'] .navbar .container {
+    border-bottom: 2px solid #808080;
+}
+
+[data-theme='dark'] .navbar .nav-link,
+[data-theme='dark'] .navbar .nav-logo,
+[data-theme='dark'] .form-title,
+[data-theme='dark'] .form-row label,
+[data-theme='dark'] .form-check-row label {
+    color: #FFFFFFCE;
+}
+
+[data-theme='dark'] .navbar .nav-link:hover{
+    color: #482ff7;
+}
+
+[data-theme='dark'] .form-row input[type="text"],
+[data-theme='dark'] .form-row input[type="email"],
+[data-theme='dark'] .form-row input[type="password"] {
+    border-bottom: 1px solid #212529;
+    color: #FFFFFFCE;
+    background: #2e3439;
+}
+
+[data-theme='dark'] .auth-form button {
+    background: transparent;
+    color: #FFFFFFCE;
+    border: 2px solid #808080;
+}
+
+
+[data-theme='dark'] .material-icons {
+    color: #3498DB;
+}
+[data-theme='dark'] .title-row input {
+    border-bottom: 1px solid #212529;
+    background: #2e3439;
+    color: #FFFFFFCE;
+}
+
+[data-theme='dark'] .notes-list,
+[data-theme='dark'] textarea,
+[data-theme='dark'] textarea:focus,
+[data-theme='dark'] textarea:hover,
+[data-theme='dark'] .actions-panel {
+    border: 2px solid #808080;
+}
+[data-theme='dark'] .notes-search {
+    border-bottom: 2px solid #808080;
+}
+[data-theme='dark'] .notes-search input {
+    background: #212529;
+}
+
+[data-theme='dark'] .note-items,
+[data-theme='dark'] .actions-panel {
+    background: transparent;
+}
+
+[data-theme='dark'] .note-items .note-item {
+    border-bottom: 2px solid #808080;
+}
+
+[data-theme='dark'] textarea {
+    background: transparent;
+    color: #FFFFFFCE;
+    caret: #FFFFFFCE;
+}
+
