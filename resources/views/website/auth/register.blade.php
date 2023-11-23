@@ -5,7 +5,7 @@
 @section('content')
     <div class="container">
         <div class="page-content">
-            <form action="{{route('register')}}" method="post" class="auth-form">
+            <form action="{{route('register')}}" method="post" class="card-form">
                 @csrf
                 <h2 class="form-title">{{__('Register')}}</h2>
                 <div class="form-row">
@@ -45,11 +45,15 @@
                     @enderror
                 </div>
                 <div class="form-button-row">
-                    <button type="submit" id="login-button">
+                    <button type="submit" class="btn button-secondary" id="login-button">
                         {{__('Register')}}
                     </button>
                 </div>
             </form>
+            <div class="info">
+                {{ __("Already have an account?") }}
+                <a href="{{ route('login') }}">{{ __('Login!') }}</a>
+            </div>
         </div>
     </div>
 @endsection

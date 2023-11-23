@@ -2,6 +2,12 @@ body {
     background-color: #f2f2f2;
     /*background-image: linear-gradient(147deg, #f2f2f2 0%, #edf1f4 74%);*/
 }
+
+.button-outlined {
+    border: 2px solid #91D1D3;
+    color: #0000CDFF;
+}
+
 .navbar .container {
     border-bottom: 2px solid #91D1D3;
 }
@@ -9,11 +15,9 @@ body {
 .form-title, .form-row label, .form-check-row label {
     color: #0000CDFF;
 }
-
 .navbar .nav-link:hover{
     color: #482ff7;
 }
-
 .form-row input[type="text"],
 .form-row input[type="email"],
 .form-row input[type="password"] {
@@ -21,14 +25,11 @@ body {
     color: #0000CDFF;
     background: transparent;
 }
-
 .auth-form button {
     background: transparent;
     color: #0000CDFF;
     border: 2px solid #91D1D3;
 }
-
-
 .material-icons {
     color: #3498DB;
 }
@@ -36,27 +37,26 @@ body {
     border-bottom: 1px solid #0dcaf0;
     color: #0000CDFF;
 }
-
 .notes-list, textarea, textarea:focus, textarea:hover, .actions-panel {
     border: 2px solid #91D1D3;
 }
-
 .notes-search input {
     background: #fafafa;
     border-bottom: 2px solid #0dcaf0;
 }
-
 .note-items, .actions-panel {
     background: #fafafa;
 }
-
 .note-items .note-item {
     border-bottom: 2px solid #91D1D3;
 }
-
-textarea {
+textarea#note {
     background: #fafafa;
     color: #0000CDFF;
     caret: #0000CDFF;
+}
+
+.grid-item {
+    border: 1px solid #91D1D3;
 }
 

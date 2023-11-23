@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
 
 return [
-
+    'guzzle_proxies' => explode('|', env('GUZZLE_PROXIES', '')),
     /*
     |--------------------------------------------------------------------------
     | Application Name

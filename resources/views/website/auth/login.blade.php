@@ -1,11 +1,8 @@
 @extends('website.layouts.app')
-@section('css')
-    <link rel="stylesheet" href="{{asset('website/css/auth.css')}}?ver={{ filemtime(public_path('website/css/auth.css')) }}">
-@endsection
 @section('content')
 <div class="container">
     <div class="page-content">
-        <form action="{{route('login')}}" method="post" class="auth-form">
+        <form action="{{route('login')}}" method="post" class="card-form">
             @csrf
             <h2 class="form-title">{{__('Login')}}</h2>
             <div class="form-row">
@@ -33,7 +30,7 @@
                 </label>
             </div>
             <div class="form-button-row">
-                <button type="submit" id="login-button">
+                <button type="submit" class="btn button-secondary" id="login-button">
                     {{__('Login')}}
                 </button>
             </div>

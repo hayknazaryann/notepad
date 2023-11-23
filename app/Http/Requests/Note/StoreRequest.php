@@ -26,6 +26,9 @@ class StoreRequest extends FormRequest
         return [
             'title' => 'required|string',
             'text' => 'required|string',
+            'category' => 'nullable|string',
+            'expiration' => 'nullable|string',
+            'password' => 'nullable|string',
             'extension' => ['nullable', Rule::in(Extensions::all())]
         ];
     }

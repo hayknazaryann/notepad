@@ -4,77 +4,143 @@
     }
 }
 
-body[data-theme='dark'] {
-    background-color: #212529;
-    color: #808080;
+:root {
+    --bg-main: #18191A;
+    --bg-overlay: #171616;
+    --main-color: #b0b3b8;
+    --border-main-color: #3E4042;
+    --btn-secondary-bg: #ffffff19;
+    --btn-secondary-hover-bg: #FFFFFF66;
+    --btn-secondary-border: #ffffff19;
+    --bg-card: #242526;
+    --bg-card-2: #FFFFFF19;
+    --bg-card-hover-2: #FFFFFF33;
+    --bg-input: #3a3b3c;
 }
 
-[data-theme='dark'] .navbar .container {
-    border-bottom: 2px solid #808080;
+body {
+    background-color: var(--bg-main);
+    color: var(--main-color);
 }
 
-[data-theme='dark'] .navbar .nav-link,
-[data-theme='dark'] .navbar .nav-logo,
-[data-theme='dark'] .form-title,
-[data-theme='dark'] .form-row label,
-[data-theme='dark'] .form-check-row label {
-    color: #FFFFFFCE;
+
+.sheet .overlay {
+    background: var(--bg-overlay);
+}
+.sheet .contents, .sheet .close-sheet {
+    background: var(--bg-card);
+}
+.sheet .draggable-thumb {
+    background: var(--main-color);
 }
 
-[data-theme='dark'] .navbar .nav-link:hover{
-    color: #482ff7;
+a, a:hover {
+    color: var(--main-color);
 }
 
-[data-theme='dark'] .form-row input[type="text"],
-[data-theme='dark'] .form-row input[type="email"],
-[data-theme='dark'] .form-row input[type="password"] {
-    border-bottom: 1px solid #212529;
-    color: #FFFFFFCE;
-    background: #2e3439;
+.button-outlined {
+    border: 1px solid var(--btn-secondary-border);
+    color: var(--main-color);
 }
 
-[data-theme='dark'] .auth-form button {
+.button-secondary {
+    background: var(--btn-secondary-bg);
+    color: currentcolor;
+}
+
+.button-secondary:hover {
+    background: var(--btn-secondary-hover-bg);
+}
+
+.navbar {
+    background-color: var(--bg-card);
+    border-bottom: 1px solid var(--border-main-color);
+}
+
+.navbar .nav-link,
+.navbar .nav-logo,
+.form-title,
+.form-row label,
+.form-check-row label {
+    color: var(--main-color);
+}
+
+.navbar .nav-link:hover {
+    color: var(--main-color);
+}
+
+.form-row input[type="text"],
+.form-row input[type="email"],
+.form-row input[type="password"] {
+    color: var(--main-color);
+    background: var(--bg-input);
+}
+
+
+.card-form {
+    background: var(--bg-card);
+}
+
+
+.material-icons {
+    color: var(--main-color);
+}
+
+input {
+    border: 1px solid var(--bg-input);
+    background: var(--bg-input);
+    color: #E4E6EB;
+}
+
+select,
+.select2-selection--single,
+.select2-container--default .select2-selection--multiple {
+    border: 1px solid var(--bg-input) !important;
+    background: var(--bg-input) !important;
+    color: #E4E6EB !important;
+    min-height: 40px;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice,
+.select2-container--open .select2-dropdown--below, .select2-dropdown {
+    background: var(--bg-input) !important;
+    border: 1px solid var(--bg-input) !important;
+}
+
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #E4E6EB;
+}
+
+.inputs-content,
+textarea,
+textarea:focus,
+textarea:hover,
+.actions-panel {
+    border: 1px solid #3E4042;
+}
+
+.actions-panel {
     background: transparent;
-    color: #FFFFFFCE;
-    border: 2px solid #808080;
 }
 
-
-[data-theme='dark'] .material-icons {
-    color: #3498DB;
-}
-[data-theme='dark'] .title-row input {
-    border-bottom: 1px solid #212529;
-    background: #2e3439;
-    color: #FFFFFFCE;
-}
-
-[data-theme='dark'] .notes-list,
-[data-theme='dark'] textarea,
-[data-theme='dark'] textarea:focus,
-[data-theme='dark'] textarea:hover,
-[data-theme='dark'] .actions-panel {
-    border: 2px solid #808080;
-}
-[data-theme='dark'] .notes-search {
-    border-bottom: 2px solid #808080;
-}
-[data-theme='dark'] .notes-search input {
-    background: #212529;
-}
-
-[data-theme='dark'] .note-items,
-[data-theme='dark'] .actions-panel {
+textarea#note {
     background: transparent;
+    color: #E4E6EB;
 }
 
-[data-theme='dark'] .note-items .note-item {
-    border-bottom: 2px solid #808080;
+.swal2-modal,
+.dropdown-menu,
+.dropdown-item {
+    background-color: #242526;
+    color: var(--main-color);
 }
 
-[data-theme='dark'] textarea {
-    background: transparent;
-    color: #FFFFFFCE;
-    caret: #FFFFFFCE;
+.grid-item {
+    border: 1px solid var(--bg-card-2);
+    background-color: var(--bg-card-2);
 }
 
+.grid-item:hover {
+    background: var(--bg-card-hover-2);
+}

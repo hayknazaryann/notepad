@@ -35,6 +35,7 @@
           crossorigin="anonymous" referrerpolicy="no-referrer"/>
 
     <link rel="stylesheet" href="{{ asset('vendors/bootstrap/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/select2/css/select2.min.css') }}">
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
@@ -43,9 +44,10 @@
 
     <!-- Styles -->
     <link rel="stylesheet" href="{{ asset('vendors/sweetalert/sweetalert2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendors/sheet/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('website/css/main.css')}}?ver={{ filemtime(public_path('website/css/main.css')) }}">
 
-    <link rel="stylesheet" href="{{ asset("website/css/themes/". (Auth::user()->theme ?? 'light') .".css")}}?ver={{ filemtime(public_path('website/css/themes/'. (Auth::user()->theme ?? 'light') .'.css')) }}">
+{{--    <link rel="stylesheet" href="{{ asset("website/css/themes/". (Auth::user()->theme ?? 'light') .".css")}}?ver={{ filemtime(public_path('website/css/themes/'. (Auth::user()->theme ?? 'light') .'.css')) }}">--}}
     <link rel="stylesheet" href="{{ asset("website/css/themes/". (Auth::user()->theme ?? 'dark') .".css")}}?ver={{ filemtime(public_path('website/css/themes/'. (Auth::user()->theme ?? 'dark') .'.css')) }}">
     @yield('css')
 
@@ -57,17 +59,19 @@
     <main class="main-content">
         @yield('content')
     </main>
-{{--    @include('website.layouts.footer')--}}
+    @include('website.partials.sheet')
 </div>
 
 
 <!-- Scripts -->
 <script src="{{ asset('vendors/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('vendors/plugins/jquery.min.js') }}"></script>
+<script src="{{ asset('vendors/select2/js/select2.min.js') }}"></script>
 <script src="{{ asset('vendors/sweetalert/sweetalert2.min.js') }}"></script>
 <script src="{{asset('js/general.js')}}?ver={{ filemtime(public_path('js/general.js')) }}" async></script>
 <script src="{{asset('website/js/main.js')}}?ver={{ filemtime(public_path('website/js/main.js')) }}" async></script>
-<script src="{{asset('website/js/theme.js')}}?ver={{ filemtime(public_path('website/js/theme.js')) }}" async></script>
+<script src="{{ asset('vendors/sheet/js/script.js') }}"></script>
+
 @yield('js')
 @yield('modals')
 </body>

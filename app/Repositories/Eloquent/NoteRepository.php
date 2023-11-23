@@ -2,15 +2,10 @@
 
 namespace App\Repositories\Eloquent;
 
-use App\Models\Application;
 use App\Models\Note;
-use App\Models\User;
-use App\Repositories\Interfaces\ApplicationInterface;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Repositories\Interfaces\NoteInterface;
 
-class NoteRepository extends EloquentRepository implements ApplicationInterface
+class NoteRepository extends EloquentRepository implements NoteInterface
 {
     /**
      * NoteRepository constructor.

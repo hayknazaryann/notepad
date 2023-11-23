@@ -1,16 +1,10 @@
 <div class="actions-list">
-    <a href="javascript:void(0)" id="new-note" title="New Note">
-                            <span class="material-icons">
-                            create
-                            </span>
-        {{__('New Note')}}
-    </a>
     <a href="javascript:void(0)" id="import" title="Import file">
                             <span class="material-icons">
                             file_upload
                             </span>
         {{__('Import')}}
-        <form class="hidden" method="post" action="{{route('notepad.import')}}" enctype="multipart/form-data">
+        <form class="hidden" method="post" action="{{route('notes.import')}}" enctype="multipart/form-data">
             <input type="file" id="import-file" name="file">
         </form>
     </a>
@@ -39,11 +33,4 @@
             @endforeach
         </ul>
     </div>
-
-    <a href="javascript:void(0)" id="profile" title="Profile">
-                            <span class="material-icons">
-                            person
-                            </span>
-        {{__('Profile')}}
-    </a>
 </div>

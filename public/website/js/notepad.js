@@ -1,12 +1,48 @@
-var noteForm = $('#note-form'), noteInput = $('textarea#note'), createUrl;
 window.jsPDF = window.jspdf.jsPDF;
 $(document).ready(function () {
-    loadItems();
+    $('select#group').select2({
+        placeholder: 'Search by group',
+        allowClear: true
+    });
+    $('select#pageSize').select2({
+        placeholder: 'Limit',
+    });
+    const gridItems = document.getElementById('grid-items');
+    new Sortable(gridItems, {
+        draggable: ".grid-item",
+        animation: 350,
+        swap: true, // Enable swap plugin
+        swapClass: 'highlight',
+        chosenClass: "sortable-chosen",
+        dragClass: "sortable-drag",
+        onEnd: function (evt) {
+            var oldIndex = evt.oldIndex,
+                newIndex = evt.newIndex,
+                currentItem = evt.item,
+                swapItem = evt.swapItem;
+
+            if (oldIndex !== newIndex) {
+                $.ajax({
+                    url: gridItems.getAttribute('data-url'),
+                    method: 'post',
+                    dataType: 'json',
+                    data: {
+                        key: currentItem.getAttribute('data-key'),
+                        swapKey: swapItem.getAttribute('data-key')
+                    }
+                }).done(function (response) {
+
+                }).fail(function (error) {
+                    failResponse(error)
+                })
+            }
+        }
+    });
 })
-    .on('click', '#new-note', function () {
-        $('textarea#note').val('');
-        noteForm.attr('data-type', 'create')
-            .attr('action', 'notepad/store');
+    .on('click', '#new-note', function (e) {
+        e.preventDefault();
+        const elm = $(this), url = elm.attr('href');
+        loadView(url, 100);
     })
     .on('click', '#import', function () {
         document.getElementById('import-file').click();
@@ -14,6 +50,7 @@ $(document).ready(function () {
     .on('change', 'input#import-file', function (e) {
         const elm = $(this),
             form = elm.closest('form');
+
         $.ajax({
             url: form.attr('action'),
             method: 'post',
@@ -29,30 +66,21 @@ $(document).ready(function () {
     })
     .on('click', '#save', function (e) {
         e.preventDefault();
-        storeNote();
+        storeNote(null, true);
     })
     .on('click', '.save-and-download', function (e) {
         const extension = $(this).attr('data-extension');
-        storeNote(extension);
+        storeNote(extension, true);
     })
     .on('click', '.view-note', function (e) {
         e.preventDefault();
         const elm = $(this), url = elm.attr('href');
-        createUrl = noteForm.attr('action');
-        $.ajax({
-            url: url,
-            method: 'get',
-            contentType: false,
-            processData: false,
-            dataType: 'json',
-        }).done(function (response) {
-            if (response.success === true) {
-                noteInput.val(response.data.note.text);
-                noteForm.attr('action',response.data.url).attr('data-type', 'update');
-            }
-        }).fail(function (error) {
-
-        })
+        loadView(url, 50);
+    })
+    .on('click', '.edit-note', function (e) {
+        e.preventDefault();
+        const elm = $(this), url = elm.attr('href');
+        loadView(url, 100);
     })
     .on('click', '.delete-item', function (e) {
         e.preventDefault();
@@ -67,7 +95,7 @@ $(document).ready(function () {
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
             if (result.isConfirmed) {
-                deleteNote(elm.attr('href'), elm.closest('.note-item'))
+                deleteNote(elm.attr('href'), elm.closest('.grid-item'))
             }
         })
     })
@@ -86,40 +114,35 @@ $(document).ready(function () {
         }).fail(function (error) {
             failResponse(error)
         })
-    })
-    .on('keyup', '.notes-search input#keyword', function () {
-        loadItems(true);
     });
 
 
-function loadItems(newItem = false) {
+function loadView(url, sheetHeight) {
     $.ajax({
-        url: $('.note-items').data('url'),
+        url: url,
         method: 'get',
-        data: {
-            keyword: $('input#keyword').val()
-        },
+        contentType: false,
+        processData: false,
         dataType: 'json',
     }).done(function (response) {
         if (response.success === true) {
-            if (newItem) {
-                $('.note-items').html(response.view);
-                noteInput.val('');
-            } else  {
-                $('.note-items').prepend(response.view);
-            }
-
+            $('#sheet main.body').html(response.data.view);
+            $('#open-sheet').trigger('click');
+            setSheetHeight(sheetHeight);
+            $('select#group-tag').select2({
+                placeholder: 'Write or choose group',
+                tags: true,
+            });
         }
+    }).fail(function (error) {
+
     })
 }
 
-function storeNote(extension = null) {
-    var data = noteForm.serializeWithFiles(),
+function storeNote(extension = null, newItem = false) {
+    var noteForm = $('#note-form'),
+        data = noteForm.serializeWithFiles(),
         url = noteForm.attr('action');
-
-    if (noteForm.attr('data-type') === 'update') {
-        data.set('_method', 'PUT');
-    }
 
     if (extension !== null) {
         data.set('extension', extension);
@@ -134,17 +157,16 @@ function storeNote(extension = null) {
         dataType: 'json',
     }).done(function (response) {
         if (response.success === true) {
-            if (noteForm.attr('data-type') === 'create') {
-                loadItems(true);
-            }
-
             if (extension) {
                 download(response.data.title, response.data.extension, response.data.text);
             }
+
+            loadItems();
+            $('.close-sheet').trigger('click');
             responseMsg('Success!', response.msg, 'success');
         }
     }).fail(function (error) {
-        failResponse(error)
+        failResponse(error, noteForm)
     })
 }
 
@@ -158,10 +180,8 @@ function deleteNote(url, row) {
         dataType: 'json',
     }).done(function (response) {
         if (response.success === true) {
-            row.remove();
+            loadItems();
             responseMsg('Deleted!', 'Your note has been deleted.', 'success');
-            noteForm.attr('action', response.data.url).attr('data-type', 'create');
-            noteInput.val('');
         }
     }).fail(function (error) {
 
@@ -223,13 +243,23 @@ function responseMsg(title, msg, type) {
     );
 }
 
-function failResponse(error) {
+function failResponse(error, form = null) {
     const statusCode = error.status;
-
     if (statusCode === 400) {
         responseMsg('Error!', error.msg, 'success');
     } else if (statusCode === 422) {
         const errors = error.responseJSON;
-        responseMsg('Error !', errors.message, 'error')
+        form.find('input[type="text"],textarea').removeClass('is-invalid');
+        if (form) {
+            form.find('input[type="text"],textarea').each(function (index, input) {
+                $(input).removeClass('is-invalid');
+                var inputName = $(input).attr('name');
+                if (inputName in errors.errors) {
+                    $(input).addClass('is-invalid');
+                }
+            });
+        } else {
+            responseMsg('Error !', errors.message, 'error')
+        }
     }
 }

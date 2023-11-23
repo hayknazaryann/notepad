@@ -13,18 +13,21 @@ return new class extends Migration
     {
         Schema::create('notes', function (Blueprint $table) {
             $table->id();
-
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')
                 ->references('id')->on('users');
-
+            $table->integer('ordering');
             $table->string('key');
-            $table->ipAddress('ip')->nullable();
-            $table->text('user_agent')->nullable();
-            $table->text('password')->nullable();
+            $table->unsignedBigInteger('group_id')->nullable();
+            $table->foreign('group_id')
+                ->references('id')->on('note_groups');
             $table->string('title');
             $table->longText('text');
-            $table->timestamps();;
+            $table->ipAddress('ip')->nullable();
+            $table->text('user_agent')->nullable();
+            $table->string('password')->nullable();
+            $table->date('expiration_date')->nullable();
+            $table->timestamps();
         });
     }
 

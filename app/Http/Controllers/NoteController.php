@@ -3,15 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Enums\Extensions;
+use App\Enums\PageSizes;
 use App\Enums\StatusCodes;
+use App\Http\Requests\Note\FilterRequest;
 use App\Http\Requests\Note\ImportRequest;
+use App\Http\Requests\Note\OrderRequest;
 use App\Http\Requests\Note\StoreRequest;
 use App\Http\Requests\Note\UpdateRequest;
-use App\Http\Resources\NoteResource;
-use App\Models\Note;
+use App\Repositories\Website\Interfaces\GroupInterface;
 use App\Repositories\Website\Interfaces\NoteInterface;
 use App\Services\FileService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
@@ -26,6 +27,11 @@ class NoteController extends Controller
     private NoteInterface $noteRepository;
 
     /**
+     * @var GroupInterface
+     */
+    private GroupInterface $groupRepository;
+
+    /**
      * @var FileService
      */
     protected FileService $fileService;
@@ -33,66 +39,47 @@ class NoteController extends Controller
     /**
      * @param NoteInterface $noteRepository
      */
-    public function __construct(NoteInterface $noteRepository, FileService $fileService)
+    public function __construct(
+        NoteInterface $noteRepository,
+        GroupInterface $groupRepository,
+        FileService $fileService
+    )
     {
         $this->noteRepository = $noteRepository;
+        $this->groupRepository = $groupRepository;
         $this->fileService = $fileService;
     }
 
     /**
+     * @param FilterRequest $request
      * @return View
      */
-    public function index(): View
+    public function index(FilterRequest $request): View
     {
-        $notes = $this->noteRepository->list();
-        $showBtn = count($notes) == 10;
+        $data = $request->validated();
+        $limit = $data['pageSize'] ?? PageSizes::LIMIT_10;
         return view('website.notes.index', [
-            'notes' => $notes,
-            'showBtn' => $showBtn
+            'notes' => $this->noteRepository->search($data),
+            'groups' => $this->groupRepository->all(),
+            'pages' => $this->noteRepository->pages($limit)
         ]);
     }
 
     /**
-     * @param Request $request
      * @return JsonResponse
      */
-    public function loadItems(Request $request): JsonResponse
+    public function create(): JsonResponse
     {
-        try {
-            $notes = $this->noteRepository->search($request);
-            $showBtn = count($notes) === 10;
-            $view = view('website.notes.partials.items', [
-                'data' => $notes,
-                'showBtn' => $showBtn
-            ])->render();
-            return response()->json([
-                'success' => true,
-                'view' => $view
-            ], 200);
-        } catch (\Exception $exception) {
-            return response()->json([
-                'success' => false,
-                'error' => 'Something went wrong'
-            ], 400);
-        }
-    }
+        $view =  view('website.notes.partials.form', [
+            'url' => route('notes.store'),
+            'groups' => $this->groupRepository->all(),
+            'type' => 'create'
+        ])->render();
 
-    /**
-     * @param string $key
-     * @return JsonResponse
-     */
-    public function view(string $key): JsonResponse
-    {
-        $note = Note::query()->where(['key' => $key])->first();
-        if (!$note->id) {
-            return Response::json(['success' => false, 'error' => 'Not found'], StatusCodes::NOT_FOUND);
-        }
-        $note = new NoteResource($note);
         return Response::json([
             'success' => true,
             'data' => [
-                'note' => $note,
-                'url' => route('notepad.update', $note->key)
+                'view' => $view
             ],
         ], StatusCodes::SUCCESS);
     }
@@ -109,10 +96,10 @@ class NoteController extends Controller
                 'success' => true,
                 'msg' => 'Your note has been created.',
                 'data' => [
-                    'title' => Note::defaultTitle(),
+                    'title' => $note->title,
                     'text' => $note->text,
                     'extension' => $request->extension,
-                    'note' => view('website.notes.partials.item', [
+                    'note' => view('website.notes.partials.grid-item', [
                         'note' => $note
                     ])->render(),
                 ]
@@ -124,6 +111,46 @@ class NoteController extends Controller
                 'error' => 'Something went wrong!'
             ], StatusCodes::BAD_REQUEST);
         }
+    }
+
+    /**
+     * @param string $key
+     * @return JsonResponse
+     */
+    public function view(string $key): JsonResponse
+    {
+        $note = $this->noteRepository->find($key);
+        if (!$note) {
+            return Response::json(['success' => false, 'error' => 'Not found'], StatusCodes::NOT_FOUND);
+        }
+
+        return Response::json([
+            'success' => true,
+            'data' => [
+                'view' => view('website.notes.partials.details', ['note' => $note])->render()
+            ],
+        ], StatusCodes::SUCCESS);
+    }
+
+    /**
+     * @param string $key
+     * @return JsonResponse
+     */
+    public function edit(string $key): JsonResponse
+    {
+        $view =  view('website.notes.partials.form', [
+            'groups' => $this->groupRepository->all(),
+            'note' => $this->noteRepository->find($key),
+            'url' => route('notes.update', $key),
+            'type' => 'edit'
+        ])->render();
+
+        return Response::json([
+            'success' => true,
+            'data' => [
+                'view' => $view
+            ],
+        ], StatusCodes::SUCCESS);
     }
 
     /**
@@ -153,24 +180,45 @@ class NoteController extends Controller
         }
     }
 
-
     /**
      * @param $key
      * @return JsonResponse
      */
     public function delete($key): JsonResponse
     {
-        if ($note = Note::query()->where(['key' => $key])->first()) {
+        if ($note = $this->noteRepository->find($key)) {
             $note->delete();
             return Response::json([
                 'success' => true,
                 'msg' => 'Deleted successfully',
-                'data' => [
-                    'url' => route('notepad.store')
-                ]
             ], StatusCodes::SUCCESS);
         }
         return Response::json(['success' => false, 'msg' => 'Not found'], StatusCodes::NOT_FOUND);
+    }
+
+    /**
+     * @param FilterRequest $request
+     * @return JsonResponse
+     */
+    public function loadItems(FilterRequest $request): JsonResponse
+    {
+        try {
+            $data = $request->query();
+            $limit = $data['pageSize'] ?? PageSizes::LIMIT_10;
+            $view = view("website.notes.partials.grid-items", [
+                'data' => $this->noteRepository->search($data),
+                'pages' => $this->noteRepository->pages($limit)
+            ])->render();
+            return response()->json([
+                'success' => true,
+                'view' => $view
+            ], 200);
+        } catch (\Exception $exception) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Something went wrong'
+            ], 400);
+        }
     }
 
     /**
@@ -187,6 +235,7 @@ class NoteController extends Controller
                     'content' => htmlspecialchars($content)
                 ]], StatusCodes::SUCCESS);
         } catch (\Exception $exception) {
+            Log::error('Note import error: ' . $exception->getMessage());
             return Response::json([
                 'success' => false,
                 'error' => __('Something went wrong!')
@@ -209,7 +258,6 @@ class NoteController extends Controller
                 ], StatusCodes::BAD_REQUEST);
             }
 
-
             $note = $this->noteRepository->find($key);
             return Response::json([
                 'success' => true,
@@ -220,6 +268,7 @@ class NoteController extends Controller
                 ]
             ], StatusCodes::SUCCESS);
         } catch (\Exception $exception) {
+            Log::error('Note download error: ' . $exception->getMessage());
             return Response::json([
                 'success' => false,
                 'error' => __('Something went wrong!')
@@ -227,5 +276,26 @@ class NoteController extends Controller
         }
     }
 
+
+    /**
+     * @param OrderRequest $request
+     * @return JsonResponse
+     */
+    public function ordering(OrderRequest $request): JsonResponse
+    {
+        try {
+            $this->noteRepository->ordering($request->validated());
+            return Response::json([
+                'success' => true,
+            ], StatusCodes::SUCCESS);
+        } catch (\Exception $exception) {
+            Log::error('Note ordering error: ' . $exception->getMessage());
+            return Response::json([
+                'success' => false,
+                'error' => __('Something went wrong!')
+            ], StatusCodes::BAD_REQUEST);
+        }
+
+    }
 
 }

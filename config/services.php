@@ -31,4 +31,17 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'rabbitmq' => [
+        'host' => env('MQ_HOST', 'localhost'),
+        'port' => env('MQ_PORT', 5672),
+        'user' => env('MQ_USER', 'guest'),
+        'pass' => env('MQ_PASS', 'guest'),
+        'vhost' => env('MQ_VHOST', 'guest'),
+    ],
+
+    'search' => [
+        'enabled' => env('ELASTICSEARCH_ENABLED', false),
+        'hosts' => explode(',', env('ELASTICSEARCH_HOSTS')),
+    ],
+
 ];

@@ -2,20 +2,46 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
+use App\Search\Searchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Note extends Model
 {
-    use HasFactory;
+    use HasFactory, Searchable;
 
+    /**
+     * @var string
+     */
     protected $table = 'notes';
 
+    /**
+     * @var string[]
+     */
     protected $fillable = [
-        'user_id', 'ip', 'user_agent', 'title', 'text', 'key', 'password'
+        'user_id', 'group_id', 'ordering',
+        'ip', 'user_agent',
+        'key', 'title', 'text', 'password'
     ];
+
+    /**
+     * @return void
+     */
+    public static function booted(): void
+    {
+        parent::booted();
+
+        static::created(function ($model) {
+            $user = $model->user;
+            $user->settings()->increment('notes');
+        });
+
+        static::deleted(function($model) {
+            $user = $model->user;
+            $user->settings()->decrement('notes');
+        });
+    }
 
     /**
      * @return string
@@ -26,7 +52,7 @@ class Note extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function user(): BelongsTo
     {
@@ -34,14 +60,10 @@ class Note extends Model
     }
 
     /**
-     * @param $limit
-     * @param $offset
-     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
+     * @return BelongsTo
      */
-    public function list($limit = 16, $offset = 0)
+    public function group(): BelongsTo
     {
-        return $this->query()
-            ->offset($offset)->limit($limit)
-            ->orderByDesc('id')->get();
+        return $this->belongsTo(NoteGroup::class, 'group_id');
     }
 }
