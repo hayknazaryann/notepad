@@ -25,7 +25,7 @@
             <hr/>
             <div class="input-row">
                 <label for="password">{{__('Password')}}</label>
-                <input type="text" id="password" name="password" form="note-form" placeholder="Write password" value="">
+                <input type="password" id="password" name="password" form="note-form" placeholder="Write password" value="{{isset($note) ? $note->password : ''}}">
             </div>
         </div>
         <div class="textarea-content">

@@ -49,10 +49,17 @@
         </div>
     </div>
     <hr/>
-    <div class="grid-body">
-        <span>
-            {{substr($note->text, 0, 100) . '...'}}
-        </span>
+    <div class="grid-body {{$note->password ? 'locked' : ''}}">
+        @if($note->password)
+            <span class="material-icons">
+                lock
+            </span>
+        @else
+            <span>
+                {{substr($note->text, 0, 100) . '...'}}
+            </span>
+        @endif
+
     </div>
     <div class="grid-footer">
 

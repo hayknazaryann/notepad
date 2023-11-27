@@ -75,7 +75,7 @@ $(document).ready(function () {
     .on('click', '.view-note', function (e) {
         e.preventDefault();
         const elm = $(this), url = elm.attr('href');
-        loadView(url, 50);
+        loadView(url, 100);
     })
     .on('click', '.edit-note', function (e) {
         e.preventDefault();
@@ -114,6 +114,10 @@ $(document).ready(function () {
         }).fail(function (error) {
             failResponse(error)
         })
+    })
+    .on('click', '#unlock-note', function (e) {
+        e.preventDefault();
+        unlock();
     });
 
 
@@ -170,6 +174,25 @@ function storeNote(extension = null, newItem = false) {
     })
 }
 
+function unlock() {
+    var notePasswordForm = $('#note-password-form'),
+        data = notePasswordForm.serializeWithFiles(),
+        url = notePasswordForm.attr('action');
+
+    $.ajax({
+        url: url,
+        method: 'post',
+        data: data,
+        contentType: false,
+        processData: false,
+        dataType: 'json',
+    }).done(function (response) {
+        $('#sheet main.body').html(response.data.view);
+    }).fail(function (error) {
+        failResponse(error, notePasswordForm)
+    })
+}
+
 function deleteNote(url, row) {
     $.ajax({
         url: url,
@@ -180,8 +203,8 @@ function deleteNote(url, row) {
         dataType: 'json',
     }).done(function (response) {
         if (response.success === true) {
-            loadItems();
             responseMsg('Deleted!', 'Your note has been deleted.', 'success');
+            loadItems();
         }
     }).fail(function (error) {
 
@@ -236,11 +259,26 @@ function generateDocx(content, filename) {
 }
 
 function responseMsg(title, msg, type) {
-    Swal.fire(
-        title,
-        msg,
-        type
-    );
+    var toastMixin = Swal.mixin({
+        toast: true,
+        icon: type,
+        title: title,
+        animation: false,
+        position: 'top-right',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    });
+
+    toastMixin.fire({
+        animation: true,
+        title: msg
+    });
+
 }
 
 function failResponse(error, form = null) {
@@ -249,9 +287,8 @@ function failResponse(error, form = null) {
         responseMsg('Error!', error.msg, 'success');
     } else if (statusCode === 422) {
         const errors = error.responseJSON;
-        form.find('input[type="text"],textarea').removeClass('is-invalid');
         if (form) {
-            form.find('input[type="text"],textarea').each(function (index, input) {
+            form.find('input[type="text"], input[type="password"], textarea').each(function (index, input) {
                 $(input).removeClass('is-invalid');
                 var inputName = $(input).attr('name');
                 if (inputName in errors.errors) {

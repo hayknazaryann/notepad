@@ -12,6 +12,9 @@
     grid-template-columns: 2fr 1fr;
     gap: 10px;
     width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-main-color);
+    border-radius: 8px;
 }
 .grid-filters form {
     display: flex;
@@ -32,11 +35,23 @@
     grid-template-columns: 11fr 1fr;
     gap: 10px;
 }
+.password-form-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
 #note-form {
     width: 100%;
     display: grid;
     grid-template-columns: 1fr 3fr;
     gap: 20px;
+}
+#note-password-form {
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
 }
 .inputs-content {
     display: flex;
@@ -93,7 +108,7 @@ textarea:focus, textarea:hover {
     position: relative;
     display: flex;
     flex-direction: column;
-    row-gap: 4px;
+    row-gap: 8px;
 }
 .input-row input {
     height: 40px;
@@ -149,6 +164,15 @@ textarea:focus, textarea:hover {
     animation: loader 3s infinite ease-in-out;
     -webkit-animation: loader 3s infinite ease-in-out;
     height: 100px;
+}
+
+.grid-body.locked {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.grid-body.locked .material-icons {
+    font-size: 36px;
 }
 .grid-body span {
     font-size: 18px;

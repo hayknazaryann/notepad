@@ -1,5 +1,6 @@
 $(document)
     .on('change', '.filters select', function () {
+        setPage();
         loadItems();
     })
     .on('input', '.filters input', debounce(function (e) {
@@ -56,4 +57,8 @@ function loadItems() {
             $(`#grid-items`).html(response.view);
         }
     });
+}
+
+function setPage(page = 1) {
+    $('#page').val(page);
 }

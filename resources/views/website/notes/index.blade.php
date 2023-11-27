@@ -1,17 +1,18 @@
 @component('website.layouts.app')
     @section('css')
-        <link rel="stylesheet"
-              href="{{asset('website/css/grid.css')}}?ver={{ filemtime(public_path('website/css/grid.css')) }}">
+        <link rel="stylesheet" href="{{asset('website/css/grid.css')}}?ver={{ filemtime(public_path('website/css/grid.css')) }}">
     @endsection
     @section('content')
         <div class="page-content container">
             <div class="grid-filters filters">
-                <form action="{{route('notes.items')}}" id="filters-form">
+                <form action="{{route('notes.items')}}" id="filters-form" onSubmit="return false;">
                     <div class="input-row">
+                        <label for="keyword">{{__('Title')}}</label>
                         <input type="text" name="keyword" id="keyword" value="{{request()->get('keyword') ?? ''}}"
                                placeholder="Search by title">
                     </div>
                     <div class="input-row">
+                        <label for="group">{{__('Group')}}</label>
                         <select name="group" id="group">
                             <option value=""></option>
                             @forelse($groups as $group)
@@ -24,6 +25,7 @@
                         </select>
                     </div>
                     <div class="input-row">
+                        <label for="pageSize">{{__('Page Size')}}</label>
                         <select name="pageSize" id="pageSize">
                             @foreach(\App\Enums\PageSizes::all() as $pageSize)
                                 <option value="{{$pageSize}}" {{request()->get('pageSize') == $pageSize ? 'selected' : ''}}>

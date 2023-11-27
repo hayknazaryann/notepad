@@ -16,6 +16,7 @@ Route::middleware('auth')->group(function () {
         Route::post('store', 'store')->name('.store');
         Route::get('view/{key}', 'view')->name('.view');
         Route::get('edit/{key}', 'edit')->name('.edit');
+        Route::post('unlock/{key}', 'unlock')->name('.unlock');
         Route::put('update/{key}', 'update')->name('.update');
         Route::delete('delete/{key}', 'delete')->name('.delete');
         Route::get('items', 'loadItems')->name('.items');

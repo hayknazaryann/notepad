@@ -59,6 +59,7 @@ class NoteRepository implements NoteInterface
             'user_agent' => $request->userAgent(),
             'ordering' => $last ? ($last->ordering + 1) : 1,
             'group_id' => $group->id ?? null,
+            'password' => $request->input('password')
         ];
         return $this->getModel()->query()->create($data);
     }
@@ -76,6 +77,7 @@ class NoteRepository implements NoteInterface
             $group = $this->groupRepository->create(trim($groupName));
         }
 
+        $password = $request->input('password');
         $data = [
             'user_id' => Auth::id(),
             'title' => $request->input('title'),
@@ -84,6 +86,7 @@ class NoteRepository implements NoteInterface
             'ip' => $request->ip(),
             'user_agent' => $request->userAgent(),
             'group_id' => $group->id ?? $model->group_id,
+            'password' => $password
         ];
 
         $model->update($data);

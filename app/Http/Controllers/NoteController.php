@@ -8,6 +8,7 @@ use App\Enums\StatusCodes;
 use App\Http\Requests\Note\FilterRequest;
 use App\Http\Requests\Note\ImportRequest;
 use App\Http\Requests\Note\OrderRequest;
+use App\Http\Requests\Note\PasswordRequest;
 use App\Http\Requests\Note\StoreRequest;
 use App\Http\Requests\Note\UpdateRequest;
 use App\Repositories\Website\Interfaces\GroupInterface;
@@ -124,10 +125,12 @@ class NoteController extends Controller
             return Response::json(['success' => false, 'error' => 'Not found'], StatusCodes::NOT_FOUND);
         }
 
+        $viewName = $note->password ? 'password-form' : 'details';
+
         return Response::json([
             'success' => true,
             'data' => [
-                'view' => view('website.notes.partials.details', ['note' => $note])->render()
+                'view' => view("website.notes.partials.{$viewName}", ['note' => $note, 'action' => 'view'])->render()
             ],
         ], StatusCodes::SUCCESS);
     }
@@ -138,11 +141,14 @@ class NoteController extends Controller
      */
     public function edit(string $key): JsonResponse
     {
-        $view =  view('website.notes.partials.form', [
+        $note = $this->noteRepository->find($key);
+        $viewName = $note->password ? 'password-form' : 'form';
+        $view =  view("website.notes.partials.{$viewName}", [
             'groups' => $this->groupRepository->all(),
-            'note' => $this->noteRepository->find($key),
+            'note' => $note,
             'url' => route('notes.update', $key),
-            'type' => 'edit'
+            'type' => 'edit',
+            'action' => 'edit'
         ])->render();
 
         return Response::json([
@@ -276,7 +282,6 @@ class NoteController extends Controller
         }
     }
 
-
     /**
      * @param OrderRequest $request
      * @return JsonResponse
@@ -296,6 +301,53 @@ class NoteController extends Controller
             ], StatusCodes::BAD_REQUEST);
         }
 
+    }
+
+    /**
+     * @param PasswordRequest $request
+     * @param string $key
+     * @return JsonResponse
+     */
+    public function unlock(PasswordRequest $request, string $key): JsonResponse
+    {
+        $password = $request->input('password');
+        $note = $this->noteRepository->find($key);
+
+        if ($password !== $note->password) {
+            return Response::json([
+                'success' => true,
+                'msg' => 'Wrong password !',
+            ], StatusCodes::BAD_REQUEST);
+        }
+
+        $action = $request->input('action');
+        $view = '';
+
+        switch ($action) {
+            case 'view':
+                $view = view("website.notes.partials.details", [
+                    'note' => $note
+                ])->render();
+                break;
+            case 'edit':
+                $view = view("website.notes.partials.form", [
+                    'groups' => $this->groupRepository->all(),
+                    'note' => $note,
+                    'url' => route('notes.update', $key),
+                    'type' => 'edit'
+                ])->render();
+                break;
+            case 'delete':
+                break;
+        }
+
+
+        return Response::json([
+            'success' => true,
+            'data' => [
+                'view' => $view
+            ],
+        ], StatusCodes::SUCCESS);
     }
 
 }
