@@ -42,7 +42,7 @@ $(document).ready(function () {
     .on('click', '#new-note', function (e) {
         e.preventDefault();
         const elm = $(this), url = elm.attr('href');
-        loadView(url, 100);
+        loadView(url, 90);
     })
     .on('click', '#import', function () {
         document.getElementById('import-file').click();
@@ -75,12 +75,12 @@ $(document).ready(function () {
     .on('click', '.view-note', function (e) {
         e.preventDefault();
         const elm = $(this), url = elm.attr('href');
-        loadView(url, 100);
+        loadView(url, 90);
     })
     .on('click', '.edit-note', function (e) {
         e.preventDefault();
         const elm = $(this), url = elm.attr('href');
-        loadView(url, 100);
+        loadView(url, 90);
     })
     .on('click', '.delete-item', function (e) {
         e.preventDefault();

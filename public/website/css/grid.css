@@ -40,6 +40,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    height: 100%;
 }
 
 #note-form {
@@ -77,8 +78,11 @@ textarea#note {
     caret-shape: bar;
     resize: none;
 }
-textarea:focus, textarea:hover {
+textarea:focus, textarea:hover, button:focus {
     outline: none;
+}
+button:focus {
+    box-shadow: none !important;
 }
 .actions-panel {
     border-radius: 4px;
@@ -129,6 +133,9 @@ textarea:focus, textarea:hover {
     padding: 14px;
     border-radius: 4px;
     cursor: grab;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 .grid-header {
     display: flex;
@@ -166,11 +173,14 @@ textarea:focus, textarea:hover {
     height: 100px;
 }
 
-.grid-body.locked {
+.grid-body .text {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    height: 100%;
 }
+
 .grid-body.locked .material-icons {
     font-size: 36px;
 }
@@ -238,6 +248,14 @@ textarea:focus, textarea:hover {
     .grid-filters, .grid-row,
     .form-content, #note-form {
         grid-template-columns: 1fr;
+    }
+    .grid-filters form {
+        flex-direction: column;
+        row-gap: 14px;
+        justify-content: center;
+    }
+    .input-row {
+        width: 100%;
     }
     .actions-panel {
         height: auto;

@@ -1,4 +1,4 @@
-<div class="password-form-content justify-content-center">
+<div class="password-form-content">
     <form action="{{ route('notes.unlock', $note->key) }}" id="note-password-form">
         <input type="hidden" name="action" value="{{$action}}">
         <div class="input-row">

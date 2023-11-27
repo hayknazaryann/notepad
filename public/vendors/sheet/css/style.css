@@ -84,7 +84,6 @@ button#open-sheet {
     flex-grow: 1;
     height: 100%;
     display: flex;
-    justify-content: center;
     flex-direction: column;
     overflow-y: auto;
     gap: 1rem;

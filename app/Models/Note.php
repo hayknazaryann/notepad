@@ -25,6 +25,10 @@ class Note extends Model
         'key', 'title', 'text', 'password'
     ];
 
+    protected $hidden = [
+        'password'
+    ];
+
     /**
      * @return void
      */

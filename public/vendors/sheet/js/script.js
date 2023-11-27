@@ -78,12 +78,10 @@ const onDragEnd = () => {
     sheetContents.classList.remove("not-selectable")
     draggableArea.style.cursor = document.body.style.cursor = ""
 
-    if (sheetHeight < 25) {
-        setIsSheetShown(false)
-    } else if (sheetHeight > 75) {
-        setSheetHeight(100)
+    if (sheetHeight > 50) {
+        setSheetHeight(90)
     } else {
-        setSheetHeight(50)
+        setIsSheetShown(false)
     }
 }
 
