@@ -1,0 +1,71 @@
+version: "3.8"
+services:
+    notepad_app:
+        container_name: notepad_app
+        build:
+            context: .
+            dockerfile: ./.docker/php/Dockerfile
+        expose:
+            - 9000
+        volumes:
+            - .:/usr/src/app
+            - ./public:/usr/src/app/public
+        depends_on:
+            - notepad_db
+        networks:
+            - app_network
+
+    notepad_nginx:
+        container_name: notepad_nginx
+        build:
+            context: .
+            dockerfile: ./.docker/nginx/Dockerfile
+        volumes:
+            - ./public:/usr/src/app/public
+        ports:
+            - 8000:80
+        depends_on:
+            - notepad_app
+        environment:
+            NGINX_FPM_HOST: notepad_app
+            NGINX_ROOT: /usr/src/app/public
+        networks:
+            - app_network
+    adminer:
+        container_name: notepad_adminer
+        image: adminer:latest
+        restart: always
+        ports:
+            - 8080:8080
+        links:
+            - notepad_db
+        networks:
+            - app_network
+    notepad_db:
+        container_name: notepad_db
+        image: mysql:8.0.20
+        restart: always
+        platform: linux/x86_64
+        volumes:
+            - ./storage/db-data:/var/lib/mysql
+        ports:
+            - 3306:3306
+        environment:
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+            MYSQL_USER: ${DB_USERNAME}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+        networks:
+            - app_network
+
+    notepad_redis:
+        container_name: notepad_redis
+        image: redis:latest
+        ports:
+            - 6379:6379
+        networks:
+            - app_network
+
+networks:
+    app_network:
+        driver: bridge
