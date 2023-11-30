@@ -140,6 +140,7 @@ button:focus {
 .grid-header {
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
 }
 .grid-header .note-actions {
     display: flex;
@@ -198,7 +199,7 @@ button:focus {
     grid-column: 1/6;
     margin-top: 20px;
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
     align-items: center;
 }
 

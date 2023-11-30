@@ -6,6 +6,7 @@
         <div class="page-content container">
             <div class="grid-filters filters">
                 <form action="{{route('notes.items')}}" id="filters-form" onSubmit="return false;">
+                    <input type="hidden" name="page" id="page" value="{{request()->get('page') ?? 1}}">
                     <div class="input-row">
                         <label for="keyword">{{__('Title')}}</label>
                         <input type="text" name="keyword" id="keyword" value="{{request()->get('keyword') ?? ''}}"
@@ -61,9 +62,7 @@
         <script src="{{ asset('vendors/docx/FileSaver.js') }}"></script>
         <script src="{{ asset('vendors/jspdf/jspdf.umd.js') }}" defer></script>
         <script src="{{ asset('vendors/sortable/sortable.js') }}" defer></script>
-        <script src="{{asset('website/js/notepad.js')}}?ver={{ filemtime(public_path('website/js/notepad.js')) }}"
-                defer></script>
-        <script src="{{asset('website/js/filters.js')}}?ver={{ filemtime(public_path('website/js/filters.js')) }}"
-                defer></script>
+        <script src="{{asset('website/js/notepad.js')}}?ver={{ filemtime(public_path('website/js/notepad.js')) }}" defer></script>
+        <script src="{{asset('website/js/filters.js')}}?ver={{ filemtime(public_path('website/js/filters.js')) }}" defer></script>
     @endsection
 @endcomponent

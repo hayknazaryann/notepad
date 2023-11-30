@@ -58,7 +58,7 @@
     @include('website.layouts.header')
     <main class="main-content">
         @yield('content')
-    </main>
+    </main>z
     @include('website.partials.sheet')
 </div>
 
@@ -68,8 +68,8 @@
 <script src="{{ asset('vendors/plugins/jquery.min.js') }}"></script>
 <script src="{{ asset('vendors/select2/js/select2.min.js') }}"></script>
 <script src="{{ asset('vendors/sweetalert/sweetalert2.min.js') }}"></script>
-<script src="{{asset('js/general.js')}}?ver={{ filemtime(public_path('js/general.js')) }}" async></script>
-<script src="{{asset('website/js/main.js')}}?ver={{ filemtime(public_path('website/js/main.js')) }}" async></script>
+<script src="{{asset('js/general.js')}}?ver={{ filemtime(public_path('js/general.js')) }}" defer></script>
+<script src="{{asset('website/js/main.js')}}?ver={{ filemtime(public_path('website/js/main.js')) }}" defer></script>
 <script src="{{ asset('vendors/sheet/js/script.js') }}"></script>
 
 @yield('js')

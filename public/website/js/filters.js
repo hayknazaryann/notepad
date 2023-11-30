@@ -6,26 +6,25 @@ $(document)
     .on('input', '.filters input', debounce(function (e) {
         loadItems();
     }, 500))
-    .on('click', '.pagination-arrow', function (e) {
-        var elm = $(this), page = elm.attr('data-page'),
-            pageInput = $('input#page'), currentPage = pageInput.val();
-
-        if (page === 'next') {
-            currentPage = parseInt(currentPage) + 1;
-        } else if (page === 'prev') {
-            currentPage = parseInt(currentPage) - 1;
-        }
-
-        currentPage = currentPage < 1 ? 1 : currentPage;
-        pageInput.val(currentPage);
-
+    .on('click', '#next', function () {
+        var pageInput = $('input#page'),
+            currentPage = pageInput.val(),
+            newPage = parseInt(currentPage) + 1;
+        pageInput.val(newPage)
+        loadItems();
+    })
+    .on('click', '#prev', function () {
+        var pageInput = $('input#page'),
+            currentPage = pageInput.val(),
+            newPage = parseInt(currentPage) - 1;
+        pageInput.val(newPage)
         loadItems();
     });
 
 
 function fetchSearchData(form) {
-    let queryParameters = form.serializeArray().filter( item => item.value),
-        params = convertObjectToURI(queryParameters);
+    let queryParameters = form.serializeArray().filter( item => item.value);
+    const params = convertObjectToURI(queryParameters);
     window.history.pushState(null, null, `?${params}`);
     return queryParameters;
 }

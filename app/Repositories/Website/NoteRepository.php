@@ -3,8 +3,9 @@
 namespace App\Repositories\Website;
 
 use App\Enums\PageSizes;
+use App\Enums\StatusCodes;
 use App\Models\Note;
-use App\Models\User;
+use App\Repositories\Website\Interfaces\GroupInterface;
 use App\Repositories\Website\Interfaces\NoteInterface;
 use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\Exception\ClientResponseException;
@@ -12,6 +13,8 @@ use Elastic\Elasticsearch\Exception\ServerResponseException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -25,16 +28,16 @@ class NoteRepository implements NoteInterface
     /** @var Client $elasticsearch */
     private $elasticsearch;
 
-    /** @var GroupRepository $groupRepository */
+    /** @var GroupInterface $groupRepository */
     private $groupRepository;
 
     /**
      * NoteRepository constructor.
      * @param Note $note
      * @param Client $elasticsearch
-     * @param GroupRepository $groupRepository
+     * @param GroupInterface $groupRepository
      */
-    public function __construct(Note $note, Client $elasticsearch, GroupRepository $groupRepository)
+    public function __construct(Note $note, Client $elasticsearch, GroupInterface $groupRepository)
     {
         $this->model = $note;
         $this->elasticsearch = $elasticsearch;
@@ -101,14 +104,6 @@ class NoteRepository implements NoteInterface
     }
 
     /** @inheritDoc */
-    public function pages($limit = PageSizes::LIMIT_10): int
-    {
-        $user = User::query()->find(Auth::id());
-        $userNotesCount = $user->settings->notes;
-        return $userNotesCount > $limit ? ceil($userNotesCount/$limit) : 1;
-    }
-
-    /** @inheritDoc */
     public function ordering(array $data): Model
     {
         $note = $this->getModel()->query()->where(['key' => $data['key']])->first();
@@ -139,8 +134,8 @@ class NoteRepository implements NoteInterface
     {
         $keyword = $data['keyword'] ?? null;
         $groupId = $data['group'] ?? null;
-        $page = $data['page'] ?? 1;
         $limit = $data['pageSize'] ?? PageSizes::LIMIT_10;
+        $page = $data['page'] ?? 1;
         $offset = ($page - 1) * $limit;
         $wheres = ['user_id' => Auth::id()];
         if (!is_null($groupId)) {
@@ -149,7 +144,6 @@ class NoteRepository implements NoteInterface
         $notes = $this->getModel()->query()->where($wheres);
         if (!is_null($keyword)) {
             $notes = $notes->where('title', 'like', '%' . $keyword . '%');
-//                ->orWhere('text', 'like', '%' . $keyword . '%');
         }
 
         return $notes->orderByDesc('ordering')->offset($offset)->limit($limit)->get();
@@ -164,24 +158,38 @@ class NoteRepository implements NoteInterface
     private function searchOnElasticsearch(?array $data): array
     {
         $model = new ($this->getModel());
-        $keyword = $data['keyword'] ?? null;
-        $groupId = $data['group'] ?? null;
-        $offset = $data['offset'] ?? 0;
-        $limit = $data['limit'] ?? 15;
-        return $this->elasticsearch->search([
+
+        /* Create Index if not exists */
+        $params['index'] = $model->getSearchIndex();
+        $this->elasticsearch->indices()->clearCache();
+        $checkIndex = $this->elasticsearch->indices()->exists($params);
+        if ($checkIndex->getStatusCode() === StatusCodes::NOT_FOUND) {
+            $this->elasticsearch->indices()->create($params);
+        }
+
+        $limit = $data['pageSize'] ?? PageSizes::LIMIT_10;
+        $page = $data['page'] ?? 1;
+        $offset = ($page - 1) * $limit;
+
+        $params = [
             'index' => $model->getSearchIndex(),
             'type' => $model->getSearchType(),
             'body' => [
                 'from' => $offset,
                 'size' => $limit,
-                'query' => [
-                    'multi_match' => [
-                        'fields' => ['title', 'text', 'user_id'],
-                        'query' => $keyword ?? false,
-                    ],
-                ],
             ],
-        ])->asArray();
+        ];
+
+        if (!empty($data['keyword'])) {
+            $params['body']['query'] = [
+                'multi_match' => [
+                    'fields' => ['title'],
+                    'query' => $data['keyword'],
+                ],
+            ];
+        }
+        /* Get the results */
+        return $this->elasticsearch->search($params)->asArray();
     }
 
     /**
@@ -203,6 +211,20 @@ class NoteRepository implements NoteInterface
             throw new InvalidArgumentException('Model must be an instance of Illuminate\Database\Eloquent\Model');
         }
         return $this->model;
+    }
+
+    /**
+     * @param $items
+     * @param int $perPage
+     * @param int|null $page
+     * @param array $options
+     * @return LengthAwarePaginator
+     */
+    private function paginateCollectionToPaginator($items, int $perPage = 10, ?int $page = null, array $options = []):LengthAwarePaginator
+    {
+        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+        $items = $items instanceof \Illuminate\Support\Collection ? $items : \Illuminate\Support\Collection::make($items);
+        return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
     }
 
 }

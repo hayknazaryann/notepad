@@ -4,7 +4,7 @@
             <span>{{$note->title}}</span>
         </h6>
         <p class="note-group">
-            <span>{{$note->group ? 'Group: ' . $note->group->title : ''}}</span>
+            <span>{{'Group: ' . ($note->group->title ?? '')}}</span>
         </p>
         <div class="note-actions">
             <div class="dropdown download-dropdown">

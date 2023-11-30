@@ -33,12 +33,6 @@ interface NoteInterface
     public function find(mixed $key): ?Model;
 
     /**
-     * @param int $limit
-     * @return int
-     */
-    public function pages(int $limit): int;
-
-    /**
      * Order notes
      *
      * @param array $data
@@ -48,6 +42,7 @@ interface NoteInterface
 
     /**
      * @param array|null $data
+     * @return Collection
      */
     public function search(?array $data): Collection;
 

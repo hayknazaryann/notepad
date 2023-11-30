@@ -57,12 +57,17 @@ class NoteController extends Controller
      */
     public function index(FilterRequest $request): View
     {
-        $data = $request->validated();
+        $data = $request->query();
+        $notes = $this->noteRepository->search($data);
+        $groups = $this->groupRepository->all();
         $limit = $data['pageSize'] ?? PageSizes::LIMIT_10;
+        $loadMore = count($notes) == $limit;
+        $currentPage = $data['page'] ?? 1;
         return view('website.notes.index', [
-            'notes' => $this->noteRepository->search($data),
-            'groups' => $this->groupRepository->all(),
-            'pages' => $this->noteRepository->pages($limit)
+            'notes'       => $notes,
+            'groups'      => $groups,
+            'loadMore'    => $loadMore,
+            'currentPage' => $currentPage,
         ]);
     }
 
@@ -210,10 +215,14 @@ class NoteController extends Controller
     {
         try {
             $data = $request->query();
+            $notes = $this->noteRepository->search($data);
             $limit = $data['pageSize'] ?? PageSizes::LIMIT_10;
+            $loadMore = count($notes) == $limit;
+            $currentPage = $data['page'] ?? 1;
             $view = view("website.notes.partials.grid-items", [
-                'data' => $this->noteRepository->search($data),
-                'pages' => $this->noteRepository->pages($limit)
+                'data'        => $notes,
+                'loadMore'    => $loadMore,
+                'currentPage' => $currentPage
             ])->render();
             return response()->json([
                 'success' => true,
