@@ -11,12 +11,11 @@ services:
             - .:/usr/src/app
             - ./public:/usr/src/app/public
         depends_on:
-            - notepad_db
+            - notepad_mysql
         networks:
             - app_network
-
     notepad_nginx:
-        container_name: notepad_nginx
+        container_name: nginx
         build:
             context: .
             dockerfile: ./.docker/nginx/Dockerfile
@@ -32,17 +31,17 @@ services:
         networks:
             - app_network
     adminer:
-        container_name: notepad_adminer
+        container_name: adminer
         image: adminer:latest
         restart: always
         ports:
             - 8080:8080
-        links:
-            - notepad_db
+        depends_on:
+            - notepad_mysql
         networks:
             - app_network
-    notepad_db:
-        container_name: notepad_db
+    notepad_mysql:
+        container_name: mysql
         image: mysql:8.0.20
         restart: always
         platform: linux/x86_64
@@ -57,15 +56,46 @@ services:
             MYSQL_PASSWORD: ${DB_PASSWORD}
         networks:
             - app_network
-
     notepad_redis:
-        container_name: notepad_redis
+        container_name: redis
         image: redis:latest
         ports:
             - 6379:6379
         networks:
             - app_network
-
+    notepad_elasticsearch:
+        container_name: elasticsearch
+        image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTICSEARCH_VERSION}
+        ports:
+            - 9200:9200
+        environment:
+            - discovery.type=single-node
+            - xpack.security.enabled=${ELASTICSEARCH_SECURITY}
+        ulimits:
+            memlock:
+                soft: -1
+                hard: -1
+        networks:
+            - app_network
+    notepad_kibana:
+        image: docker.elastic.co/kibana/kibana:${ELASTICSEARCH_VERSION}
+        container_name: kibana
+        ports:
+            - 5601:5601
+        environment:
+            - ELASTICSEARCH_URL=${APP_URL}:9200
+        links:
+            - notepad_elasticsearch
+        depends_on:
+            - notepad_elasticsearch
+        networks:
+            - app_network
+        deploy:
+            resources:
+                limits:
+                    cpus: '2.0'
+                reservations:
+                    cpus: '1.0'
 networks:
     app_network:
         driver: bridge
