@@ -23,6 +23,9 @@ body {
     color: var(--main-color);
 }
 
+input::placeholder {
+    color: #999;
+}
 
 .sheet .overlay {
     background: var(--bg-overlay);
@@ -129,7 +132,7 @@ textarea#note {
     color: #E4E6EB;
 }
 
-.swal2-modal,
+.swal2-modal, .swal2-popup.swal2-toast,
 .dropdown-menu,
 .dropdown-item {
     background-color: #242526;
@@ -143,4 +146,9 @@ textarea#note {
 
 .grid-item:hover {
     background: var(--bg-card-hover-2);
+}
+
+.access-form-content .access-item {
+    border: 1px solid var(--bg-input) !important;
+    background: var(--bg-input) !important;
 }

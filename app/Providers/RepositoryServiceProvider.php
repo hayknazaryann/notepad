@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Repositories\Eloquent\NoteRepository;
-use App\Repositories\Interfaces\NoteInterface;
+use App\Repositories\Eloquent\UserRepository;
+use App\Repositories\Interfaces\UserInterface;
 use App\Repositories\Website\Interfaces\NoteInterface as WebsiteNoteInterface;
 use App\Repositories\Website\NoteRepository as WebsiteNoteRepository;
 use App\Repositories\Website\Interfaces\GroupInterface as WebsiteGroupInterface;
@@ -16,8 +16,9 @@ class RepositoryServiceProvider extends ServiceProvider
      * @var array
      */
     public $bindings = [
-        WebsiteNoteInterface::class => WebsiteNoteRepository::class,
+        WebsiteNoteInterface::class  => WebsiteNoteRepository::class,
         WebsiteGroupInterface::class => WebsiteGroupRepository::class,
+        UserInterface::class         => UserRepository::class
     ];
 
     /**

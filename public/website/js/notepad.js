@@ -1,12 +1,6 @@
 window.jsPDF = window.jspdf.jsPDF;
 $(document).ready(function () {
-    $('select#group').select2({
-        placeholder: 'Search by group',
-        allowClear: true
-    });
-    $('select#pageSize').select2({
-        placeholder: 'Limit',
-    });
+    initSelect();
     const gridItems = document.getElementById('grid-items');
     new Sortable(gridItems, {
         draggable: ".grid-item",
@@ -118,6 +112,32 @@ $(document).ready(function () {
     .on('click', '#unlock-note', function (e) {
         e.preventDefault();
         unlock();
+    })
+    .on('click', '.give-access', function (e) {
+        e.preventDefault();
+        const elm = $(this), url = elm.attr('href');
+        loadView(url, 90);
+    })
+    .on('click', '#add-user', function () {
+        var accessForm = $('#access-form'),
+            data = accessForm.serializeWithFiles(),
+            url = accessForm.attr('action');
+
+        $.ajax({
+            url: url,
+            method: 'post',
+            data: data,
+            contentType: false,
+            processData: false,
+            dataType: 'json',
+        }).done(function (response) {
+            if (response.success === true) {
+                noteUsers(response.url);
+                responseMsg('Success!', response.msg, 'success');
+            }
+        }).fail(function (error) {
+            failResponse(error)
+        })
     });
 
 
@@ -133,14 +153,11 @@ function loadView(url, sheetHeight) {
             $('#sheet main.body').html(response.data.view);
             $('#open-sheet').trigger('click');
             setSheetHeight(sheetHeight);
-            $('select#group-tag').select2({
-                placeholder: 'Write or choose group',
-                tags: true,
-            });
+            initSelect();
         }
     }).fail(function (error) {
 
-    })
+    });
 }
 
 function storeNote(extension = null, newItem = false) {
@@ -188,6 +205,7 @@ function unlock() {
         dataType: 'json',
     }).done(function (response) {
         $('#sheet main.body').html(response.data.view);
+        initSelect();
     }).fail(function (error) {
         failResponse(error, notePasswordForm)
     })
@@ -209,6 +227,22 @@ function deleteNote(url, row) {
     }).fail(function (error) {
 
     })
+}
+
+function noteUsers(url) {
+    $.ajax({
+        url: url,
+        method: 'get',
+        contentType: false,
+        processData: false,
+        dataType: 'json',
+    }).done(function (response) {
+        if (response.success === true) {
+            $('.access-list').html(response.data.view)
+        }
+    }).fail(function (error) {
+
+    });
 }
 
 function download(filename, extension, text) {
@@ -258,6 +292,89 @@ function generateDocx(content, filename) {
     });
 }
 
+function autocompleteSelect(elm, tag = false) {
+    const autocompleteInput = elm;
+    const autocompleteUrl = autocompleteInput.data('url');
+    if(autocompleteInput.attr('data-value')) {
+        autocompleteInput.html(`<option value="${autocompleteInput.attr('data-value')}">${autocompleteInput.attr('data-value')}</option>`)
+    }
+    autocompleteInput.select2({
+        placeholder: elm.attr('aria-label'),
+        dropdownParent: '.card',
+        allowClear: true,
+        tag: tag,
+        ajax: {
+            url: autocompleteUrl,
+            dataType: 'json',
+            delay: 250,
+            data: function(params) {
+                let page = params.current_page ? (params.current_page + 1) : 1;
+                return {
+                    q: params.term, // search term
+                    page: page
+                };
+            },
+            processResults: function (data, params) {
+                params.current_page = data.current_page;
+                return {
+                    results:  $.map(data.data, function (item) {
+                        return {
+                            text: item.ip,
+                            id: item.ip
+                        }
+                    }),
+                    pagination: {
+                        more: (params.current_page * 30) < data.total
+                    }
+                };
+            },
+            cache: true
+        }
+    });
+}
+
+function initSelect () {
+    $('select.select2').each(function () {
+        const elm = $(this),
+              placeholder = elm.attr('aria-label'),
+              tags = elm.hasClass('select2-tag');
+
+        elm.select2({
+            placeholder: placeholder,
+            tags: tags,
+            allowClear: true
+        });
+    })
+}
+
+function initEditor(selector) {
+    tinymce.init({
+        selector: selector,
+        promotion: false,
+        plugins: 'print preview importcss searchreplace autolink autosave save directionality visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools textpattern noneditable help charmap quickbars emoticons',
+        mobile: {
+            plugins: 'print preview importcss searchreplace autolink autosave save directionality visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount textpattern noneditable help charmap quickbars emoticons'
+        },
+        menu: {
+            tc: {
+                title: 'Comments',
+                items: 'addcomment showcomments deleteallconversations'
+            }
+        },
+        menubar: 'file edit view insert format tools table tc help',
+        toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | a11ycheck ltr rtl | showcomments addcomment',
+        autosave_ask_before_unload: true,
+        templates: [
+            { title: 'New Table', description: 'creates a new table', content: '<div class="mceTmpl"><table width="98%"  border="0" cellspacing="0" cellpadding="0"><tr><th scope="col"> </th><th scope="col"> </th></tr><tr><td> </td><td> </td></tr></table></div>' },
+            { title: 'Starting my story', description: 'A cure for writers block', content: 'Once upon a time...' },
+            { title: 'New list with dates', description: 'New List with dates', content: '<div class="mceTmpl"><span class="cdate">cdate</span><br /><span class="mdate">mdate</span><h2>My List</h2><ul><li></li><li></li></ul></div>' }
+        ],
+        skin: (window.matchMedia("(prefers-color-scheme: dark)").matches ? "oxide-dark" : ""),
+        content_css: (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : ""),
+        height: 480,
+    });
+}
+
 function responseMsg(title, msg, type) {
     var toastMixin = Swal.mixin({
         toast: true,
@@ -284,7 +401,9 @@ function responseMsg(title, msg, type) {
 function failResponse(error, form = null) {
     const statusCode = error.status;
     if (statusCode === 400) {
-        responseMsg('Error!', error.msg, 'success');
+        responseMsg('Error!', error.msg, 'error');
+    } else if (statusCode === 404) {
+        responseMsg('Error!', error.msg, 'error');
     } else if (statusCode === 422) {
         const errors = error.responseJSON;
         if (form) {
@@ -295,8 +414,7 @@ function failResponse(error, form = null) {
                     $(input).addClass('is-invalid');
                 }
             });
-        } else {
-            responseMsg('Error !', errors.message, 'error')
         }
+        responseMsg('Error !', errors.message, 'error')
     }
 }

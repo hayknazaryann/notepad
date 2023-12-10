@@ -32,9 +32,41 @@
 .form-content {
     display: grid;
     width: 100%;
+    height: 100%;
     grid-template-columns: 11fr 1fr;
     gap: 10px;
 }
+.access-form-content {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.access-form-content .access-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    align-items: flex-start;
+    height: 480px;
+}
+.access-form-content .access-item {
+    width: 100%;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+}
+.access-form-content .access-item .item-title {
+    display: flex;
+    align-items: center;
+}
+
+.access-form-content .access-item .form-label {
+    margin-bottom: 0.1rem;
+}
+
 .password-form-content {
     display: flex;
     flex-direction: column;

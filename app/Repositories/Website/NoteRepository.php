@@ -126,6 +126,22 @@ class NoteRepository implements NoteInterface
         return $this->buildCollection($items);
     }
 
+    /** @inheritDoc */
+    public function giveAccess(array $data, Model $model): Model
+    {
+        $model->users()->detach([
+            $data['user_id']
+        ]);
+
+        $model->users()->attach([
+            $data['user_id'] => [
+                'access' => $data['access']
+            ]
+        ]);
+
+        return $model;
+    }
+
     /**
      * @param array|null $data
      * @return Collection

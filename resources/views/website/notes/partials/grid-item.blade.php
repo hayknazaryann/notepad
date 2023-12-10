@@ -11,9 +11,9 @@
                 <a href="javascript:void(0)" title="Download Note" class=""
                    id="dropdownDownloadButton{{$note->id}}" data-bs-toggle="dropdown" aria-expanded="false"
                 >
-                                <span class="material-icons">
-                                download
-                                </span>
+                        <span class="material-icons">
+                        download
+                        </span>
                 </a>
                 <ul class="dropdown-menu" aria-labelledby="dropdownDownloadAsButton{{$note->id}}">
                     @foreach(\App\Enums\Extensions::all() as $extension)
@@ -24,6 +24,13 @@
                         </li>
                     @endforeach
                 </ul>
+            </div>
+            <div class="users-action">
+                <a href="{{route('notes.accessForm', $note->key)}}" class="give-access">
+                    <span class="material-icons">
+                    person_add_alt
+                    </span>
+                </a>
             </div>
             <div class="view-action">
                 <a href="{{route('notes.view', $note->key)}}" class="view-note" title="Edit Note">

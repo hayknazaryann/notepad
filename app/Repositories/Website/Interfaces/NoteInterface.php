@@ -46,4 +46,11 @@ interface NoteInterface
      */
     public function search(?array $data): Collection;
 
+    /**
+     * @param array $data
+     * @param Model $model
+     * @return Model
+     */
+    public function giveAccess(array $data, Model $model): Model;
+
 }

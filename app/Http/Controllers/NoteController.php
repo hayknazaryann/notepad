@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Enums\Extensions;
 use App\Enums\PageSizes;
 use App\Enums\StatusCodes;
+use App\Http\Requests\Note\AccessRequest;
 use App\Http\Requests\Note\FilterRequest;
 use App\Http\Requests\Note\ImportRequest;
 use App\Http\Requests\Note\OrderRequest;
 use App\Http\Requests\Note\PasswordRequest;
 use App\Http\Requests\Note\StoreRequest;
 use App\Http\Requests\Note\UpdateRequest;
+use App\Models\User;
+use App\Repositories\Interfaces\UserInterface;
 use App\Repositories\Website\Interfaces\GroupInterface;
 use App\Repositories\Website\Interfaces\NoteInterface;
 use App\Services\FileService;
@@ -28,9 +31,14 @@ class NoteController extends Controller
     private NoteInterface $noteRepository;
 
     /**
-     * @var GroupInterface
+     * @var GroupInterface $groupRepository
      */
     private GroupInterface $groupRepository;
+
+    /**
+     * @var UserInterface $userRepository
+     */
+    private UserInterface $userRepository;
 
     /**
      * @var FileService
@@ -43,11 +51,13 @@ class NoteController extends Controller
     public function __construct(
         NoteInterface $noteRepository,
         GroupInterface $groupRepository,
+        UserInterface $userRepository,
         FileService $fileService
     )
     {
         $this->noteRepository = $noteRepository;
         $this->groupRepository = $groupRepository;
+        $this->userRepository = $userRepository;
         $this->fileService = $fileService;
     }
 
@@ -236,6 +246,25 @@ class NoteController extends Controller
         }
     }
 
+    public function loadUsers(string $key)
+    {
+        $note = $this->noteRepository->find($key);
+        if (!$note) {
+            return Response::json(['success' => false, 'error' => 'Not found'], StatusCodes::NOT_FOUND);
+        }
+
+
+        return Response::json([
+            'success' => true,
+            'data' => [
+                'view' => view("website.notes.partials.access-items", [
+                    'note' => $note,
+                    'noteUsers' => $note->users,
+                ])->render()
+            ],
+        ], StatusCodes::SUCCESS);
+    }
+
     /**
      * @param ImportRequest $request
      * @return JsonResponse
@@ -313,6 +342,63 @@ class NoteController extends Controller
     }
 
     /**
+     * @param string $key
+     * @return JsonResponse
+     */
+    public function accessForm(string $key): JsonResponse
+    {
+        $note = $this->noteRepository->find($key);
+        if (!$note) {
+            return Response::json(['success' => false, 'error' => 'Not found'], StatusCodes::NOT_FOUND);
+        }
+
+        $viewName = $note->password ? 'password-form' : 'access-form';
+
+        return Response::json([
+            'success' => true,
+            'data' => [
+                'view' => view("website.notes.partials.{$viewName}", [
+                    'note' => $note,
+                    'users' => $this->userRepository->doesNotHaveNoteAccess($note->id),
+                    'noteUsers' => $note->users,
+                    'action' => 'access'
+                ])->render()
+            ],
+        ], StatusCodes::SUCCESS);
+    }
+
+
+    /**
+     * @param AccessRequest $request
+     * @param string $key
+     * @return JsonResponse|void
+     */
+    public function access(AccessRequest $request, string $key)
+    {
+        $note = $this->noteRepository->find($key);
+        if (!$note) {
+            return Response::json(['success' => false, 'msg' => 'Not found'], StatusCodes::NOT_FOUND);
+        }
+
+        try {
+            $this->noteRepository->giveAccess($request->validated(), $note);
+            return Response::json([
+                'success' => true,
+                'msg' => 'Your note has been created.',
+                'url' => route('notes.users', $key)
+            ], StatusCodes::SUCCESS);
+
+        } catch (\Exception $exception) {
+            Log::error('Note give access error: ' . $exception->getMessage());
+            return Response::json([
+                'success' => false,
+                'error' => __('Something went wrong!')
+            ], StatusCodes::BAD_REQUEST);
+        }
+
+    }
+
+    /**
      * @param PasswordRequest $request
      * @param string $key
      * @return JsonResponse
@@ -346,7 +432,12 @@ class NoteController extends Controller
                     'type' => 'edit'
                 ])->render();
                 break;
-            case 'delete':
+            case 'access':
+                $view = view("website.notes.partials.access-form", [
+                    'note' => $note,
+                    'users' => $this->userRepository->all(),
+                    'noteUsers' => $this->userRepository->all(),
+                ])->render();
                 break;
         }
 
@@ -358,5 +449,4 @@ class NoteController extends Controller
             ],
         ], StatusCodes::SUCCESS);
     }
-
 }

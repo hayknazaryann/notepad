@@ -13,7 +13,7 @@
             <hr/>
             <div class="input-row">
                 <label for="group-tag">{{__('Group')}}</label>
-                <select name="group" id="group-tag" form="note-form">
+                <select class="select2 select2-tag" name="group" id="group-tag" form="note-form" aria-label="{{__('Write or choose group')}}">
                     <option value=""></option>
                     @if(count($groups))
                         @foreach($groups as $group)

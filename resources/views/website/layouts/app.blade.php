@@ -58,7 +58,7 @@
     @include('website.layouts.header')
     <main class="main-content">
         @yield('content')
-    </main>z
+    </main>
     @include('website.partials.sheet')
 </div>
 

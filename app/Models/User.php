@@ -3,7 +3,9 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\Permissions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -59,5 +61,27 @@ class User extends Authenticatable
     public function notes(): HasMany
     {
         return $this->hasMany(Note::class, 'user_id');
+    }
+
+
+    /**
+     * @return BelongsToMany
+     */
+    public function accessNotes(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Note::class,
+            'note_users',
+            'user_id',
+            'note_id'
+        )->withPivot('access')->withTimestamps();
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasAccessEdit(): bool
+    {
+        return $this->pivot->access === Permissions::VIEW_AND_EDIT;
     }
 }
