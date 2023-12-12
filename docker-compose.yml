@@ -1,35 +1,38 @@
 version: "3.8"
 services:
-    notepad_app:
-        container_name: notepad_app
+    app:
+        container_name: app
         build:
-            context: .
-            dockerfile: ./.docker/php/Dockerfile
+            context: ./.docker/php
+            dockerfile: Dockerfile
         expose:
             - 9000
         volumes:
-            - .:/usr/src/app
-            - ./public:/usr/src/app/public
+            - .:/var/www/html
+            - ./public:/var/www/html/public
         depends_on:
-            - notepad_mysql
+            - mysql
         networks:
-            - app_network
-    notepad_nginx:
+            - notepad
+    nginx:
         container_name: nginx
         build:
-            context: .
-            dockerfile: ./.docker/nginx/Dockerfile
+            context: ./.docker/nginx
+            dockerfile: Dockerfile
         volumes:
-            - ./public:/usr/src/app/public
+            - ./public:/var/www/html/public
         ports:
             - 8000:80
         depends_on:
-            - notepad_app
+            - app
+            - mysql
+            - adminer
+            - redis
         environment:
-            NGINX_FPM_HOST: notepad_app
-            NGINX_ROOT: /usr/src/app/public
+            NGINX_FPM_HOST: app
+            NGINX_ROOT: /var/www/html/public
         networks:
-            - app_network
+            - notepad
     adminer:
         container_name: adminer
         image: adminer:latest
@@ -37,10 +40,10 @@ services:
         ports:
             - 8080:8080
         depends_on:
-            - notepad_mysql
+            - mysql
         networks:
-            - app_network
-    notepad_mysql:
+            - notepad
+    mysql:
         container_name: mysql
         image: mysql:8.0.20
         restart: always
@@ -55,47 +58,46 @@ services:
             MYSQL_USER: ${DB_USERNAME}
             MYSQL_PASSWORD: ${DB_PASSWORD}
         networks:
-            - app_network
-    notepad_redis:
+            - notepad
+    redis:
         container_name: redis
         image: redis:latest
         ports:
             - 6379:6379
         networks:
-            - app_network
-    notepad_elasticsearch:
-        container_name: elasticsearch
-        image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTICSEARCH_VERSION}
-        ports:
-            - 9200:9200
-        environment:
-            - discovery.type=single-node
-            - xpack.security.enabled=${ELASTICSEARCH_SECURITY}
-        ulimits:
-            memlock:
-                soft: -1
-                hard: -1
-        networks:
-            - app_network
-    notepad_kibana:
-        image: docker.elastic.co/kibana/kibana:${ELASTICSEARCH_VERSION}
-        container_name: kibana
-        ports:
-            - 5601:5601
-        environment:
-            - ELASTICSEARCH_URL=${APP_URL}:9200
-        links:
-            - notepad_elasticsearch
-        depends_on:
-            - notepad_elasticsearch
-        networks:
-            - app_network
-        deploy:
-            resources:
-                limits:
-                    cpus: '2.0'
-                reservations:
-                    cpus: '1.0'
+            - notepad
+#    elasticsearch:
+#        container_name: elasticsearch
+#        image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTICSEARCH_VERSION}
+#        ports:
+#            - 9200:9200
+#        environment:
+#            - discovery.type=single-node
+#            - xpack.security.enabled=${ELASTICSEARCH_SECURITY}
+#        ulimits:
+#            memlock:
+#                soft: -1
+#                hard: -1
+#        networks:
+#            - notepad
+#    kibana:
+#        image: docker.elastic.co/kibana/kibana:${ELASTICSEARCH_VERSION}
+#        container_name: kibana
+#        ports:
+#            - 5601:5601
+#        environment:
+#            - ELASTICSEARCH_URL=${APP_URL}:9200
+#        links:
+#            - elasticsearch
+#        depends_on:
+#            - elasticsearch
+#        networks:
+#            - notepad
+#        deploy:
+#            resources:
+#                limits:
+#                    cpus: '2.0'
+#                reservations:
+#                    cpus: '1.0'
 networks:
-    app_network:
-        driver: bridge
+    notepad:

@@ -16,10 +16,12 @@ return new class extends Migration
 
             $table->unsignedBigInteger('note_id');
             $table->foreign('note_id')
+                ->onUpdate('cascade')->onDelete('cascade')
                 ->references('id')->on('notes');
 
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')
+                ->onUpdate('cascade')->onDelete('cascade')
                 ->references('id')->on('users');
 
             $table->string('access');

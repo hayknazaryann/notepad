@@ -12,7 +12,6 @@ use App\Http\Requests\Note\OrderRequest;
 use App\Http\Requests\Note\PasswordRequest;
 use App\Http\Requests\Note\StoreRequest;
 use App\Http\Requests\Note\UpdateRequest;
-use App\Models\User;
 use App\Repositories\Interfaces\UserInterface;
 use App\Repositories\Website\Interfaces\GroupInterface;
 use App\Repositories\Website\Interfaces\NoteInterface;

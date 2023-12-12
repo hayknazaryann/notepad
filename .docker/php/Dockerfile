@@ -12,9 +12,6 @@ ENV COMPOSER_VERSION 2.6.5
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --version=$COMPOSER_VERSION
 
-# Install nodejs
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash
-
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         libz-dev \
@@ -43,8 +40,8 @@ RUN apt-get update \
     && docker-php-ext-enable redis sockets \
     && rm -rf /var/lib/apt/lists/*;
 
-COPY ./.docker/php/php.ini /usr/local/etc/php/conf.d/php.ini
+COPY php.ini /usr/local/etc/php/conf.d/php.ini
 
-WORKDIR /usr/src/app
+WORKDIR /var/www/html
 
 RUN chown -R www-data:www-data .
